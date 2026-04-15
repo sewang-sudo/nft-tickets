@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@metaplex-foundation/mpl-bubblegum": "^5.0.2",
+    "@metaplex-foundation/umi": "^1.5.1",
+    "@solana/wallet-adapter-react": "^0.15.39"
+  }
+}
