@@ -5,10 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-anchor_program = "8Q3bQZA37hRwJ84DcrcVMp7k4LrGLjdoBGsgF6N9iEEp"
-
-[registry]
-url = "https://api.apr.dev"
+anchor_program = "3o7dXUGpic6U7AsCpEwv4ifVp4w2B4waHk3ScbjT1NU2"
 
 [provider]
 cluster = "devnet"
@@ -16,3 +13,5 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "echo 'no tests'"
+
+[hooks]

@@ -6,7 +6,7 @@ pub mod instructions;
 
 use instructions::*;
 
-declare_id!("8Q3bQZA37hRwJ84DcrcVMp7k4LrGLjdoBGsgF6N9iEEp");
+declare_id!("3o7dXUGpic6U7AsCpEwv4ifVp4w2B4waHk3ScbjT1NU2");
 
 #[program]
 pub mod thahar {
