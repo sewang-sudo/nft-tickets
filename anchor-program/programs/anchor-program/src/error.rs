@@ -1,13 +1,31 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
-pub enum TicketError {
-    #[msg("You are not the owner of this ticket")]
-    NotOwner,
-    #[msg("Ticket is already listed for sale")]
-    AlreadyListed,
-    #[msg("Ticket is not listed for sale")]
-    NotForSale,
-    #[msg("You cannot buy your own ticket")]
-    CannotBuyOwn,
+pub enum ThaharError {
+    #[msg("Policy is not in active status")]
+    PolicyNotActive,
+
+    #[msg("Trigger threshold has not been breached")]
+    ThresholdNotBreached,
+
+    #[msg("Premium amount is too low")]
+    PremiumTooLow,
+
+    #[msg("Coverage amount must be greater than zero")]
+    InvalidCoverageAmount,
+
+    #[msg("Region ID exceeds maximum length")]
+    RegionIdTooLong,
+
+    #[msg("Oracle data is stale - not updated recently")]
+    OracleDataStale,
+
+    #[msg("Unauthorized oracle authority")]
+    UnauthorizedOracle,
+
+    #[msg("Policy already paid out")]
+    AlreadyPaidOut,
+
+    #[msg("Arithmetic overflow")]
+    ArithmeticOverflow,
 }
