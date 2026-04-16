@@ -4,7 +4,7 @@ pub mod error;
 pub mod state;
 pub mod instructions;
 
-use instructions::*;
+use crate::instructions::*;
 
 declare_id!("3o7dXUGpic6U7AsCpEwv4ifVp4w2B4waHk3ScbjT1NU2");
 
