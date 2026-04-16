@@ -14,3 +14,7 @@ frontend/build/
 backend/__pycache__/
 *.env
 anchor-program/target/
+backend/farmer_test.json
+backend/e2e_test.ts
+backend/package-lock.json
+backend/thahar.json
