@@ -1,133 +1,214 @@
-import React, { useState, useEffect } from 'react';
-import BookingCard from '../components/BookingCard';
-import { getActivities } from '../utils/api';
+import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { registerPolicy, payPremium } from '../utils/thahar';
 
-const FILTERS = ['All', 'Adventure', 'Trek', 'Water Sport', 'Extreme', 'Sightseeing'];
+const POLICY_TYPES = ['Drought', 'Flood', 'Both'];
+const REGIONS = ['kathmandu-1', 'pokhara-1', 'chitwan-1', 'butwal-1'];
 
-export default function Home({ onBook }) {
-  const [activities, setActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [sortBy, setSortBy] = useState('default');
+export default function Home({ notify }) {
+  const wallet = useWallet();
+  const [form, setForm] = useState({
+    coverageAmount: '',
+    triggerThreshold: '',
+    regionId: REGIONS[0],
+    policyType: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState('register'); // 'register' | 'premium' | 'done'
 
-  useEffect(() => {
-    getActivities()
-      .then(data => setActivities(data))
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const handleChange = e => {
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  };
 
-  const normalized = activities.map(a => ({
-    id: a.id, name: a.title,
-    category: a.description?.split(' ')[0] || 'Activity',
-    description: a.description || '',
-    price: a.price_sol,
-    duration: a.event_date ? new Date(a.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-    spotsLeft: a.seats_available,
-    tags: [a.location], raw: a,
-  }));
+  const handleRegister = async () => {
+    if (!wallet.connected) return notify('Connect your wallet first', 'error');
+    if (!form.coverageAmount || !form.triggerThreshold) return notify('Fill all fields', 'error');
+    setLoading(true);
+    try {
+      const sig = await registerPolicy(wallet, {
+        coverageAmount: parseFloat(form.coverageAmount) * 1e9,
+        triggerThreshold: parseInt(form.triggerThreshold),
+        regionId: form.regionId,
+        policyType: parseInt(form.policyType),
+      });
+      notify(`Policy registered! TX: ${sig.slice(0, 8)}...`);
+      setStep('premium');
+    } catch (e) {
+      notify(e.message || 'Registration failed', 'error');
+    }
+    setLoading(false);
+  };
 
-  const filtered = normalized
-    .filter(a => activeFilter === 'All' || a.category === activeFilter)
-    .sort((a, b) => {
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
-      if (sortBy === 'spots') return a.spotsLeft - b.spotsLeft;
-      return 0;
-    });
+  const handlePremium = async () => {
+    if (!wallet.connected) return notify('Connect your wallet first', 'error');
+    setLoading(true);
+    try {
+      const premiumLamports = parseFloat(form.coverageAmount) * 1e9 * 0.05; // 5% premium
+      const sig = await payPremium(wallet, premiumLamports);
+      notify(`Premium paid! TX: ${sig.slice(0, 8)}...`);
+      setStep('done');
+    } catch (e) {
+      notify(e.message || 'Payment failed', 'error');
+    }
+    setLoading(false);
+  };
 
   return (
-    <div className="page-wrap">
-      <div className="page-inner">
-
-        {/* Hero */}
-        <div style={{ marginBottom: '48px' }}>
-          <div className="label-mono" style={{ marginBottom: '14px' }}>— Available Experiences</div>
-          <h1 style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 200,
-            color: '#0c0a09', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '16px',
-          }}>
-            Book once.<br /><strong style={{ fontWeight: 700 }}>Own forever.</strong>
+    <div className="page-container">
+      {/* Hero */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-badge">🇳🇵 Built for Nepal</div>
+          <h1 className="hero-title">
+            Parametric Crop Insurance<br />
+            <span className="hero-accent">On-Chain, Instant Payouts</span>
           </h1>
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '14px', fontWeight: 300, color: '#44403c',
-            lineHeight: 1.75, maxWidth: '440px',
-          }}>
-            Every booking mints an NFT to your Phantom wallet. Resell, transfer, or hold — your ticket, your chain.
+          <p className="hero-sub">
+            Thahar Protocol protects Nepali farmers from drought and floods.
+            No paperwork. No middlemen. Oracle-triggered payouts straight to your wallet.
           </p>
+          <div className="hero-stats">
+            <div className="stat-pill">
+              <span className="stat-num">3o7d...1NU2</span>
+              <span className="stat-label">Live on Devnet</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-num">5</span>
+              <span className="stat-label">On-chain Instructions</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-num">~24h</span>
+              <span className="stat-label">Payout Time</span>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Stats row */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '36px', flexWrap: 'wrap' }}>
+      {/* How it works */}
+      <section className="section">
+        <h2 className="section-title">How It Works</h2>
+        <div className="cryo-grid">
           {[
-            { label: 'Live Events', value: activities.length },
-            { label: 'Chain', value: 'Solana' },
-            { label: 'Fee', value: '0%' },
-          ].map(s => (
-            <div key={s.label} className="telemetry-box" style={{ minWidth: '120px' }}>
-              <div style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '22px', fontWeight: 600, color: '#0c0a09', letterSpacing: '-0.02em',
-              }}>{s.value}</div>
-              <div className="label-mono" style={{ marginTop: '3px', fontSize: '8px' }}>{s.label}</div>
+            { icon: '🔗', step: '01', title: 'Connect Wallet', desc: 'Link your Phantom wallet. Your wallet is your identity — no signup needed.' },
+            { icon: '📋', step: '02', title: 'Register Policy', desc: 'Set your coverage amount, region, and rainfall trigger threshold.' },
+            { icon: '💳', step: '03', title: 'Pay Premium', desc: 'Pay 5% of coverage as premium. Funds go to on-chain treasury.' },
+            { icon: '⛅', step: '04', title: 'Oracle Monitors', desc: 'Authorized oracle pushes weather data on-chain every 12 hours.' },
+            { icon: '⚡', step: '05', title: 'Auto Payout', desc: 'If rainfall drops below your threshold, SOL is sent directly to your wallet.' },
+          ].map(card => (
+            <div className="cryo-card step-card" key={card.step}>
+              <div className="step-number">{card.step}</div>
+              <div className="step-icon">{card.icon}</div>
+              <h3 className="step-title">{card.title}</h3>
+              <p className="step-desc">{card.desc}</p>
             </div>
           ))}
         </div>
+      </section>
 
-        {/* Filter + Sort */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: '12px',
-          marginBottom: '28px', paddingBottom: '20px',
-          borderBottom: '1px solid rgba(6,173,202,0.15)',
-        }}>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {FILTERS.map(f => (
-              <button key={f} onClick={() => setActiveFilter(f)} style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: '8px', fontWeight: 600,
-                letterSpacing: '0.7em', textTransform: 'uppercase',
-                padding: '7px 16px', borderRadius: '20px', cursor: 'default',
-                background: activeFilter === f ? '#06ADCA' : 'transparent',
-                color: activeFilter === f ? 'white' : '#78716c',
-                border: `1px solid ${activeFilter === f ? '#06ADCA' : 'rgba(6,173,202,0.3)'}`,
-                boxShadow: activeFilter === f
-                  ? 'inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -4px 12px rgba(0,0,0,0.15)'
-                  : 'none',
-              }}>{f}</button>
-            ))}
+      {/* Register form */}
+      <section className="section">
+        <h2 className="section-title">Register a Policy</h2>
+        {!wallet.connected ? (
+          <div className="connect-prompt cryo-card">
+            <p>Connect your wallet to register a policy</p>
+            <WalletMultiButton className="cryo-wallet-btn" />
           </div>
-          <select className="cryo-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="default">Sort: Default</option>
-            <option value="price-asc">Price: Low → High</option>
-            <option value="price-desc">Price: High → Low</option>
-            <option value="spots">Spots: Fewest First</option>
-          </select>
-        </div>
-
-        {loading && <div className="label-mono" style={{ textAlign: 'center', padding: '80px 0' }}>Loading activities...</div>}
-        {error && <div className="label-mono" style={{ textAlign: 'center', padding: '80px 0', color: '#dc2626' }}>✕ {error}</div>}
-        {!loading && !error && filtered.length === 0 && (
-          <div className="label-mono" style={{ textAlign: 'center', padding: '80px 0' }}>No activities found.</div>
-        )}
-
-        {!loading && !error && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '16px', paddingBottom: '60px',
-          }}>
-            {filtered.map((activity, i) => (
-              <div key={activity.id} className="animate-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                <BookingCard activity={activity} onBook={onBook} />
+        ) : (
+          <div className="cryo-card form-card">
+            {step === 'done' ? (
+              <div className="success-state">
+                <div className="success-icon">✅</div>
+                <h3>Policy Active!</h3>
+                <p>Your insurance policy is live on Solana devnet. You will receive SOL directly when conditions are met.</p>
+                <a
+                  href={`https://explorer.solana.com/address/${wallet.publicKey?.toBase58()}?cluster=devnet`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cryo-btn"
+                >
+                  View on Explorer
+                </a>
               </div>
-            ))}
+            ) : step === 'premium' ? (
+              <div className="premium-step">
+                <h3 className="form-title">Step 2 — Pay Premium</h3>
+                <p className="form-sub">
+                  Premium: <strong>{(parseFloat(form.coverageAmount || 0) * 0.05).toFixed(4)} SOL</strong> (5% of coverage)
+                </p>
+                <button
+                  className="cryo-btn full-width"
+                  onClick={handlePremium}
+                  disabled={loading}
+                >
+                  {loading ? 'Processing...' : '💳 Pay Premium & Activate Policy'}
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 className="form-title">Step 1 — Policy Details</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label className="form-label">Coverage Amount (SOL)</label>
+                    <input
+                      className="cryo-input"
+                      name="coverageAmount"
+                      type="number"
+                      placeholder="e.g. 2.5"
+                      value={form.coverageAmount}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Rainfall Trigger Threshold (mm)</label>
+                    <input
+                      className="cryo-input"
+                      name="triggerThreshold"
+                      type="number"
+                      placeholder="e.g. 50"
+                      value={form.triggerThreshold}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Region</label>
+                    <select
+                      className="cryo-input"
+                      name="regionId"
+                      value={form.regionId}
+                      onChange={handleChange}
+                    >
+                      {REGIONS.map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Policy Type</label>
+                    <select
+                      className="cryo-input"
+                      name="policyType"
+                      value={form.policyType}
+                      onChange={handleChange}
+                    >
+                      {POLICY_TYPES.map((t, i) => (
+                        <option key={i} value={i}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <button
+                  className="cryo-btn full-width"
+                  onClick={handleRegister}
+                  disabled={loading}
+                >
+                  {loading ? 'Registering...' : '📋 Register Policy'}
+                </button>
+              </>
+            )}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
