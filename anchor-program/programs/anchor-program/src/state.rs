@@ -3,7 +3,8 @@ use anchor_lang::prelude::*;
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
 pub enum PolicyType {
     Crop,
-    Disaster,
+    Flood,
+    Both,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
@@ -28,15 +29,15 @@ pub struct InsurancePolicy {
 
 impl InsurancePolicy {
     pub const LEN: usize = 8
-        + 32   // farmer
-        + 2    // policy_type
-        + 2    // status
-        + 8    // premium_paid
-        + 8    // coverage_amount
-        + 8    // trigger_threshold
-        + (4 + 32) // region_id
-        + 8    // created_at
-        + 1;   // bump
+        + 32
+        + 1
+        + 1
+        + 8
+        + 8
+        + 8
+        + (4 + 32)
+        + 8
+        + 1;
 }
 
 #[account]
@@ -51,12 +52,12 @@ pub struct OracleData {
 
 impl OracleData {
     pub const LEN: usize = 8
-        + 32       // authority
-        + (4 + 32) // region_id
-        + 8        // rainfall_mm
-        + 8        // flood_level_cm
-        + 8        // last_updated
-        + 1;       // bump
+        + 32
+        + (4 + 32)
+        + 8
+        + 8
+        + 8
+        + 1;
 }
 
 #[account]
