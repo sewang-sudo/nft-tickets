@@ -9,12 +9,13 @@ venv/
 node_modules/
 __pycache__/
 .env
-anchor-program/target/
+anchor-program/target/deploy/
+anchor-program/target/debug/
+anchor-program/target/release/
+anchor-program/target/.rustc_info.json
 frontend/build/
 backend/__pycache__/
 *.env
-anchor-program/target/
 backend/farmer_test.json
-backend/e2e_test.ts
 backend/package-lock.json
 backend/thahar.json
