@@ -1,0 +1,579 @@
+{
+  "address": "3o7dXUGpic6U7AsCpEwv4ifVp4w2B4waHk3ScbjT1NU2",
+  "metadata": {
+    "name": "thahar",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "treasury",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pay_premium",
+      "discriminator": [
+        156,
+        253,
+        113,
+        97,
+        167,
+        54,
+        253,
+        245
+      ],
+      "accounts": [
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "farmer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "farmer",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "policy"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "register_policy",
+      "discriminator": [
+        62,
+        66,
+        167,
+        36,
+        252,
+        227,
+        38,
+        132
+      ],
+      "accounts": [
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "farmer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "farmer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "policy_type",
+          "type": {
+            "defined": {
+              "name": "PolicyType"
+            }
+          }
+        },
+        {
+          "name": "coverage_amount",
+          "type": "u64"
+        },
+        {
+          "name": "trigger_threshold",
+          "type": "i64"
+        },
+        {
+          "name": "region_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "trigger_payout",
+      "discriminator": [
+        145,
+        81,
+        98,
+        96,
+        194,
+        251,
+        69,
+        38
+      ],
+      "accounts": [
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "farmer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle.region_id",
+                "account": "OracleData"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "farmer",
+          "writable": true,
+          "relations": [
+            "policy"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_oracle",
+      "discriminator": [
+        112,
+        41,
+        209,
+        18,
+        248,
+        226,
+        252,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "oracle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "region_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "region_id",
+          "type": "string"
+        },
+        {
+          "name": "rainfall_mm",
+          "type": "i64"
+        },
+        {
+          "name": "flood_level_cm",
+          "type": "i64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "InsurancePolicy",
+      "discriminator": [
+        171,
+        170,
+        55,
+        125,
+        71,
+        125,
+        63,
+        48
+      ]
+    },
+    {
+      "name": "OracleData",
+      "discriminator": [
+        26,
+        131,
+        25,
+        110,
+        6,
+        141,
+        10,
+        37
+      ]
+    },
+    {
+      "name": "ProgramTreasury",
+      "discriminator": [
+        103,
+        145,
+        33,
+        36,
+        231,
+        156,
+        13,
+        177
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "PolicyNotActive",
+      "msg": "Policy is not in active status"
+    },
+    {
+      "code": 6001,
+      "name": "ThresholdNotBreached",
+      "msg": "Trigger threshold has not been breached"
+    },
+    {
+      "code": 6002,
+      "name": "PremiumTooLow",
+      "msg": "Premium amount is too low"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidCoverageAmount",
+      "msg": "Coverage amount must be greater than zero"
+    },
+    {
+      "code": 6004,
+      "name": "RegionIdTooLong",
+      "msg": "Region ID exceeds maximum length"
+    },
+    {
+      "code": 6005,
+      "name": "OracleDataStale",
+      "msg": "Oracle data is stale - not updated recently"
+    },
+    {
+      "code": 6006,
+      "name": "UnauthorizedOracle",
+      "msg": "Unauthorized oracle authority"
+    },
+    {
+      "code": 6007,
+      "name": "AlreadyPaidOut",
+      "msg": "Policy already paid out"
+    },
+    {
+      "code": 6008,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "InsurancePolicy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "farmer",
+            "type": "pubkey"
+          },
+          {
+            "name": "policy_type",
+            "type": {
+              "defined": {
+                "name": "PolicyType"
+              }
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "PolicyStatus"
+              }
+            }
+          },
+          {
+            "name": "premium_paid",
+            "type": "u64"
+          },
+          {
+            "name": "coverage_amount",
+            "type": "u64"
+          },
+          {
+            "name": "trigger_threshold",
+            "type": "i64"
+          },
+          {
+            "name": "region_id",
+            "type": "string"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "region_id",
+            "type": "string"
+          },
+          {
+            "name": "rainfall_mm",
+            "type": "i64"
+          },
+          {
+            "name": "flood_level_cm",
+            "type": "i64"
+          },
+          {
+            "name": "last_updated",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "PaidOut"
+          },
+          {
+            "name": "Expired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Crop"
+          },
+          {
+            "name": "Disaster"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramTreasury",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
