@@ -44,6 +44,9 @@ pub mod thahar {
     pub fn trigger_payout(ctx: Context<TriggerPayout>) -> Result<()> {
         instructions::trigger_payout::handler(ctx)
     }
+    pub fn close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
+        instructions::close_policy::handler(ctx)
+    }
 }
 
 #[cfg(test)]
