@@ -131,6 +131,7 @@ export async function fetchPolicy(wallet) {
   return await program.account.insurancePolicy.fetch(policy);
 }
 
+
 export async function fetchOracleData(regionId) {
   const provider = new AnchorProvider(CONNECTION, {
     publicKey: PublicKey.default,
@@ -140,4 +141,17 @@ export async function fetchOracleData(regionId) {
   const program = new Program(IDL, provider);
   const [oracle] = oraclePDA(regionId);
   return await program.account.oracleData.fetch(oracle);
+}
+
+export async function closePolicy(wallet) {
+  const program = getProgram(wallet);
+  const [policy] = policyPDA(wallet.publicKey);
+  return await program.methods
+    .closePolicy()
+    .accounts({
+      policy,
+      farmer: wallet.publicKey,
+      systemProgram: web3.SystemProgram.programId,
+    })
+    .rpc();
 }

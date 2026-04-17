@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { fetchPolicy, triggerPayout } from '../utils/thahar';
+import { fetchPolicy, triggerPayout, closePolicy } from '../utils/thahar';
 
 const STATUS_LABELS = { 0: 'Active', 1: 'Paid Out', 2: 'Expired' };
 const STATUS_COLORS = { 0: '#00ff88', 1: '#7b61ff', 2: '#888' };
 const TYPE_LABELS   = { 0: 'Drought', 1: 'Flood', 2: 'Both' };
+
+const enumKey     = (obj) => obj && typeof obj === 'object' ? Object.keys(obj)[0] : obj;
+const statusIndex = (s) => ({ active: 0, paidOut: 1, expired: 2 }[enumKey(s)] ?? s);
+const typeIndex   = (t) => ({ drought: 0, flood: 1, both: 2 }[enumKey(t)] ?? t);
 
 export default function MyPolicies({ notify }) {
   const wallet = useWallet();
@@ -31,6 +35,19 @@ export default function MyPolicies({ notify }) {
       setPolicy(p => ({ ...p, status: 1 }));
     } catch (e) {
       notify(e.message || 'Trigger failed', 'error');
+    }
+    setLoading(false);
+  };
+
+  const handleClose = async () => {
+    if (!wallet.connected) return;
+    setLoading(true);
+    try {
+      const sig = await closePolicy(wallet);
+      notify(`Policy closed! Rent returned. TX: ${sig.slice(0, 8)}...`);
+      setPolicy(null);
+    } catch (e) {
+      notify(e.message || 'Close failed', 'error');
     }
     setLoading(false);
   };
@@ -64,25 +81,29 @@ export default function MyPolicies({ notify }) {
         <div className="cryo-card policy-detail">
           <div className="policy-header">
             <div>
-              <h3 className="policy-type">{TYPE_LABELS[policy.policyType]} Insurance</h3>
+              <h3 className="policy-type">{TYPE_LABELS[typeIndex(policy.policyType)]} Insurance</h3>
               <span className="policy-region">📍 {policy.regionId}</span>
             </div>
             <span
               className="status-badge"
-              style={{ background: STATUS_COLORS[policy.status] + '22', color: STATUS_COLORS[policy.status], border: `1px solid ${STATUS_COLORS[policy.status]}` }}
+              style={{
+                background: STATUS_COLORS[statusIndex(policy.status)] + '22',
+                color: STATUS_COLORS[statusIndex(policy.status)],
+                border: `1px solid ${STATUS_COLORS[statusIndex(policy.status)]}`
+              }}
             >
-              {STATUS_LABELS[policy.status]}
+              {STATUS_LABELS[statusIndex(policy.status)]}
             </span>
           </div>
 
           <div className="policy-stats">
             <div className="policy-stat">
               <span className="stat-label">Coverage</span>
-              <span className="stat-value">{(policy.coverageAmount / 1e9).toFixed(2)} SOL</span>
+              <span className="stat-value">{(policy.coverageAmount?.toNumber?.() / 1e9).toFixed(2)} SOL</span>
             </div>
             <div className="policy-stat">
               <span className="stat-label">Trigger Threshold</span>
-              <span className="stat-value">{policy.triggerThreshold} mm</span>
+              <span className="stat-value">{policy.triggerThreshold?.toString()} mm</span>
             </div>
             <div className="policy-stat">
               <span className="stat-label">Premium Paid</span>
@@ -90,13 +111,11 @@ export default function MyPolicies({ notify }) {
             </div>
             <div className="policy-stat">
               <span className="stat-label">Farmer</span>
-              <span className="stat-value mono">
-                {policy.farmer?.toBase58?.()?.slice(0, 8)}...
-              </span>
+              <span className="stat-value mono">{policy.farmer?.toBase58?.()?.slice(0, 8)}...</span>
             </div>
           </div>
 
-          {policy.status === 0 && policy.premiumPaid && (
+          {statusIndex(policy.status) === 0 && policy.premiumPaid && (
             <button
               className="cryo-btn full-width"
               onClick={handleTrigger}
@@ -106,13 +125,24 @@ export default function MyPolicies({ notify }) {
             </button>
           )}
 
-          {policy.status === 1 && (
+          {statusIndex(policy.status) === 0 && !policy.premiumPaid && (
+            <button
+              className="cryo-btn full-width"
+              onClick={handleClose}
+              disabled={loading}
+              style={{ background: '#ff444422', color: '#ff4444', border: '1px solid #ff4444' }}
+            >
+              {loading ? 'Processing...' : '🗑️ Cancel Policy & Reclaim SOL'}
+            </button>
+          )}
+
+          {statusIndex(policy.status) === 1 && (
             <div className="payout-notice">
               ✅ Payout has been sent to your wallet.
             </div>
           )}
 
-          <a
+          
             href={`https://explorer.solana.com/address/${wallet.publicKey?.toBase58()}?cluster=devnet`}
             target="_blank"
             rel="noreferrer"
