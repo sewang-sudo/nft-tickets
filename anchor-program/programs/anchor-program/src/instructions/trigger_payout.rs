@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program;
+
 use crate::state::{InsurancePolicy, PolicyStatus, OracleData, ProgramTreasury};
 use crate::error::ThaharError;
 
@@ -54,20 +54,9 @@ pub fn handler(ctx: Context<TriggerPayout>) -> Result<()> {
         policy.coverage_amount
     };
 
-    // --- CPI to System Program to transfer from treasury PDA to farmer ---
-    let treasury_bump = ctx.accounts.treasury.bump;
-    let seeds: &[&[u8]] = &[b"treasury", &[treasury_bump]];
-    let signer_seeds = &[seeds];
-
-    let cpi_ctx = CpiContext::new_with_signer(
-        ctx.accounts.system_program.key(),
-        system_program::Transfer {
-            from: ctx.accounts.treasury.to_account_info(),
-            to:   ctx.accounts.farmer.to_account_info(),
-        },
-        signer_seeds,
-    );
-    system_program::transfer(cpi_ctx, payout)?;
+    // --- Direct lamport transfer (treasury carries data, system_program::transfer won't work) ---
+    **ctx.accounts.treasury.to_account_info().try_borrow_mut_lamports()? -= payout;
+    **ctx.accounts.farmer.to_account_info().try_borrow_mut_lamports()? += payout;
 
     // --- mark policy as paid out ---
     let policy = &mut ctx.accounts.policy;
