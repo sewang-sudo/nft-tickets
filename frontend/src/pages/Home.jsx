@@ -6,7 +6,7 @@ import { registerPolicy, payPremium } from '../utils/thahar';
 const POLICY_TYPES = ['Drought', 'Flood', 'Both'];
 const REGIONS = ['kathmandu-1', 'pokhara-1', 'chitwan-1', 'butwal-1'];
 
-export default function Home({ notify }) {
+export default function Home({ notify, toNPR }) {
   const wallet = useWallet();
   const [form, setForm] = useState({
     coverageAmount: '',
@@ -160,6 +160,11 @@ export default function Home({ notify }) {
                       value={form.coverageAmount}
                       onChange={handleChange}
                     />
+                    {form.coverageAmount && toNPR && (
+                      <span style={{ fontSize: '12px', color: '#888', marginTop: '4px', display: 'block' }}>
+                        {toNPR(parseFloat(form.coverageAmount))}
+                      </span>
+                    )}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Rainfall Trigger Threshold (mm)</label>
