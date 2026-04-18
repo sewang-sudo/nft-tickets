@@ -34,7 +34,7 @@ pub fn handle_close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
     let one_month = 30i64 * 86400;
 
     if policy.status == PolicyStatus::Active && policy.premium_paid > 0 {
-        if days_remaining <= one_month && now < policy.expires_at {
+        if days_remaining <= one_month && now < policy.expires_at && policy.duration_days > 30 {
             return Err(ThaharError::CannotCancelFinalMonth.into());
         }
         let refund = if now >= policy.expires_at {
