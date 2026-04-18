@@ -155,7 +155,7 @@ export default function MyPolicies({ notify, toNPR }) {
             const expiresAt = policy.expiresAt?.toNumber?.();
             const daysRemaining = Math.floor((expiresAt - now) / 86400);
             const isExpired = now >= expiresAt;
-            const isFinalMonth = daysRemaining <= 30 && !isExpired;
+            const isFinalMonth = daysRemaining <= 30 && !isExpired && policy.durationDays > 30;
             const isLockPeriod = daysActive <= 30;
 
             let cancelLabel = '';
