@@ -37,7 +37,7 @@ export default function Home({ notify, toNPR }) {
       notify(`Policy registered! TX: ${sig.slice(0, 8)}...`);
       setStep('premium');
     } catch (e) {
-      if (e.message?.includes("already been processed")) { notify("Policy registered!"); } else { notify(e.message || "Registration failed", "error"); }
+      if (e.message?.includes("already been processed")) { notify("Policy registered!"); setStep("premium"); } else { notify(e.message || "Registration failed", "error"); }
     }
     setLoading(false);
   };
