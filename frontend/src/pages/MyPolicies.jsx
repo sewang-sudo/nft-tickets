@@ -113,6 +113,37 @@ export default function MyPolicies({ notify }) {
               <span className="stat-label">Farmer</span>
               <span className="stat-value mono">{policy.farmer?.toBase58?.()?.slice(0, 8)}...</span>
             </div>
+            <div className="policy-stat">
+              <span className="stat-label">Duration</span>
+              <span className="stat-value">{policy.durationDays?.toString()} days</span>
+            </div>
+            <div className="policy-stat">
+              <span className="stat-label">Expires</span>
+              <span className="stat-value">
+                {(() => {
+                  const exp = policy.expiresAt?.toNumber?.();
+                  if (!exp) return 'N/A';
+                  const now = Math.floor(Date.now() / 1000);
+                  const daysLeft = Math.floor((exp - now) / 86400);
+                  if (daysLeft < 0) return 'Expired';
+                  if (daysLeft === 0) return 'Expires today';
+                  return daysLeft + ' days left';
+                })()}
+              </span>
+            </div>
+            <div className="policy-stat">
+              <span className="stat-label">Trigger eligible</span>
+              <span className="stat-value">
+                {(() => {
+                  const created = policy.createdAt?.toNumber?.();
+                  if (!created) return 'N/A';
+                  const now = Math.floor(Date.now() / 1000);
+                  const daysActive = Math.floor((now - created) / 86400);
+                  if (daysActive >= 7) return 'Yes';
+                  return (7 - daysActive) + ' days remaining';
+                })()}
+              </span>
+            </div>
           </div>
 
           {statusIndex(policy.status) === 0 && policy.premiumPaid && (() => {
