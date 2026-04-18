@@ -72,6 +72,7 @@ export async function registerPolicy(wallet, { coverageAmount, triggerThreshold,
     )
     .accounts({
       policy,
+      treasury: treasuryPDA()[0],
       farmer: wallet.publicKey,
       systemProgram: web3.SystemProgram.programId,
     })
@@ -146,10 +147,12 @@ export async function fetchOracleData(regionId) {
 export async function closePolicy(wallet) {
   const program = getProgram(wallet);
   const [policy] = policyPDA(wallet.publicKey);
+  const [treasury] = treasuryPDA();
   return await program.methods
     .closePolicy()
     .accounts({
       policy,
+      treasury,
       farmer: wallet.publicKey,
       systemProgram: web3.SystemProgram.programId,
     })

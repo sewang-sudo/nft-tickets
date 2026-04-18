@@ -8,57 +8,6 @@
   },
   "instructions": [
     {
-      "name": "close_policy",
-      "discriminator": [
-        55,
-        42,
-        248,
-        229,
-        222,
-        138,
-        26,
-        252
-      ],
-      "accounts": [
-        {
-          "name": "policy",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  108,
-                  105,
-                  99,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "farmer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "farmer",
-          "writable": true,
-          "signer": true,
-          "relations": [
-            "policy"
-          ]
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initialize",
       "discriminator": [
         175,
@@ -605,10 +554,7 @@
             "name": "Crop"
           },
           {
-            "name": "Flood"
-          },
-          {
-            "name": "Both"
+            "name": "Disaster"
           }
         ]
       }
