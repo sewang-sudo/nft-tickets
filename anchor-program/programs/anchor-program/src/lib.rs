@@ -48,6 +48,9 @@ pub mod thahar {
     pub fn close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
         instructions::close_policy::handle_close_policy(ctx)
     }
+    pub fn expire_policy(ctx: Context<ExpirePolicy>) -> Result<()> {
+        instructions::expire_policy::handle_expire_policy(ctx)
+    }
 }
 
 #[cfg(test)]

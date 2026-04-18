@@ -159,3 +159,18 @@ export async function closePolicy(wallet) {
     })
     .rpc();
 }
+
+export async function expirePolicy(wallet, farmerPubkey) {
+  const program = getProgram(wallet);
+  const [policy] = policyPDA(farmerPubkey);
+  const [treasury] = treasuryPDA();
+  return await program.methods
+    .expirePolicy()
+    .accounts({
+      policy,
+      treasury,
+      farmer: farmerPubkey,
+      systemProgram: web3.SystemProgram.programId,
+    })
+    .rpc();
+}
