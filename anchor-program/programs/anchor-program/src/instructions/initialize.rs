@@ -18,7 +18,7 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Initialize>) -> Result<()> {
+pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
     let treasury = &mut ctx.accounts.treasury;
     treasury.authority = ctx.accounts.authority.key();
     treasury.bump = ctx.bumps.treasury;

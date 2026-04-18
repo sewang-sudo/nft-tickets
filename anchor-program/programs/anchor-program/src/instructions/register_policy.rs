@@ -20,7 +20,7 @@ pub struct RegisterPolicy<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(
+pub fn handle_register_policy(
     ctx: Context<RegisterPolicy>,
     policy_type: PolicyType,
     coverage_amount: u64,

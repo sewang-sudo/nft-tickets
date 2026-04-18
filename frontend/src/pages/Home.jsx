@@ -35,7 +35,7 @@ export default function Home({ notify }) {
       notify(`Policy registered! TX: ${sig.slice(0, 8)}...`);
       setStep('premium');
     } catch (e) {
-      notify(e.message || 'Registration failed', 'error');
+      if (e.message?.includes("already been processed")) { notify("Policy registered!"); } else { notify(e.message || "Registration failed", "error"); }
     }
     setLoading(false);
   };
@@ -49,7 +49,7 @@ export default function Home({ notify }) {
       notify(`Premium paid! TX: ${sig.slice(0, 8)}...`);
       setStep('done');
     } catch (e) {
-      notify(e.message || 'Payment failed', 'error');
+      if (e.message?.includes("already been processed")) { notify("Premium paid!"); } else { notify(e.message || "Payment failed", "error"); }
     }
     setLoading(false);
   };
