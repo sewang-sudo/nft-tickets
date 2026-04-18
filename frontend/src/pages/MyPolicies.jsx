@@ -11,7 +11,7 @@ const enumKey     = (obj) => obj && typeof obj === 'object' ? Object.keys(obj)[0
 const statusIndex = (s) => ({ active: 0, paidOut: 1, expired: 2 }[enumKey(s)] ?? s);
 const typeIndex   = (t) => ({ drought: 0, flood: 1, both: 2 }[enumKey(t)] ?? t);
 
-export default function MyPolicies({ notify }) {
+export default function MyPolicies({ notify, toNPR }) {
   const wallet = useWallet();
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -99,7 +99,10 @@ export default function MyPolicies({ notify }) {
           <div className="policy-stats">
             <div className="policy-stat">
               <span className="stat-label">Coverage</span>
-              <span className="stat-value">{(policy.coverageAmount?.toNumber?.() / 1e9).toFixed(2)} SOL</span>
+              <span className="stat-value">
+                {(policy.coverageAmount?.toNumber?.() / 1e9).toFixed(2)} SOL
+                {toNPR && <span style={{color:'#888', fontSize:'12px', marginLeft:'6px'}}>{toNPR(policy.coverageAmount?.toNumber?.() / 1e9)}</span>}
+              </span>
             </div>
             <div className="policy-stat">
               <span className="stat-label">Trigger Threshold</span>
