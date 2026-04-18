@@ -23,4 +23,6 @@ pub enum ThaharError {
     InvalidDuration,
     #[msg("Cannot cancel policy in the final month")]
     CannotCancelFinalMonth,
+    #[msg("Policy must be at least 7 days old before triggering payout")]
+    PolicyTooNew,
 }

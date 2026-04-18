@@ -42,6 +42,10 @@ pub fn handle_trigger_payout(ctx: Context<TriggerPayout>) -> Result<()> {
 
         let now = Clock::get()?.unix_timestamp;
         require!(
+            now - policy.created_at >= 7 * 86400,
+            ThaharError::PolicyTooNew
+        );
+        require!(
             now - oracle.last_updated < 86400,
             ThaharError::OracleDataStale
         );
