@@ -115,16 +115,43 @@ export default function MyPolicies({ notify }) {
             </div>
           </div>
 
-          {statusIndex(policy.status) === 0 && policy.premiumPaid && (
-            <button
-              className="cryo-btn full-width"
-              onClick={handleTrigger}
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : '⚡ Trigger Payout (if conditions met)'}
-            </button>
-          )}
+          {statusIndex(policy.status) === 0 && policy.premiumPaid && (() => {
+            const now = Math.floor(Date.now() / 1000);
+            const daysActive = Math.floor((now - policy.createdAt?.toNumber?.()) / 86400);
+            const expiresAt = policy.expiresAt?.toNumber?.();
+            const daysRemaining = Math.floor((expiresAt - now) / 86400);
+            const isExpired = now >= expiresAt;
+            const isFinalMonth = daysRemaining <= 30 && !isExpired;
+            const isLockPeriod = daysActive <= 30;
 
+            let cancelLabel = '';
+            if (isExpired) cancelLabel = 'Collect 50% Back & Close';
+            else if (isFinalMonth) cancelLabel = 'Locked - Final Month (Cannot Cancel)';
+            else if (isLockPeriod) cancelLabel = 'Cancel (Lock Period - 0% Refund)';
+            else cancelLabel = 'Cancel Policy (70% Premium Back)';
+
+            return (
+              <>
+                <button className="cryo-btn full-width" onClick={handleTrigger} disabled={loading}>
+                  {loading ? 'Processing...' : 'Trigger Payout (if conditions met)'}
+                </button>
+                <button
+                  className="cryo-btn full-width"
+                  onClick={handleClose}
+                  disabled={loading || isFinalMonth}
+                  style={{ background: '#ff444422', color: '#ff4444', border: '1px solid #ff4444', marginTop: '0.5rem' }}
+                >
+                  {loading ? 'Processing...' : cancelLabel}
+                </button>
+                <div style={{ fontSize: '12px', color: '#888', marginTop: '0.5rem', textAlign: 'center' }}>
+                  {isExpired ? 'Policy expired - claim your 50% back' :
+                   isFinalMonth ? `${daysRemaining} days left - locked until expiry` :
+                   isLockPeriod ? `${30 - daysActive} days until lock period ends` :
+                   `${daysRemaining} days remaining - cancel for 70% back`}
+                </div>
+              </>
+            );
+          })()}
           {statusIndex(policy.status) === 0 && !policy.premiumPaid && (
             <button
               className="cryo-btn full-width"
@@ -132,7 +159,7 @@ export default function MyPolicies({ notify }) {
               disabled={loading}
               style={{ background: '#ff444422', color: '#ff4444', border: '1px solid #ff4444' }}
             >
-              {loading ? 'Processing...' : '🗑️ Cancel Policy & Reclaim SOL'}
+              {loading ? 'Processing...' : 'Cancel Policy & Reclaim SOL'}
             </button>
           )}
 

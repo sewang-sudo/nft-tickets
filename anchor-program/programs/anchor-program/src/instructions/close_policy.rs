@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::{InsurancePolicy, PolicyStatus, ProgramTreasury};
+use crate::error::ThaharError;
 
 #[derive(Accounts)]
 pub struct ClosePolicy<'info> {
@@ -26,12 +27,37 @@ pub fn handle_close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
     let farmer = &ctx.accounts.farmer;
     let treasury = &ctx.accounts.treasury;
 
-    // If policy is still Active (no payout), return 50% of premium from treasury
+    let now = Clock::get()?.unix_timestamp;
+    let days_active = (now - policy.created_at) / 86400;
+    let _days_total = policy.duration_days as i64;
+    let days_remaining = policy.expires_at - now;
+    let one_month = 30i64 * 86400;
+
     if policy.status == PolicyStatus::Active && policy.premium_paid > 0 {
-        let refund = policy.premium_paid / 2;
-        **treasury.to_account_info().try_borrow_mut_lamports()? -= refund;
-        **farmer.to_account_info().try_borrow_mut_lamports()? += refund;
-        msg!("Refunded 50% premium: {} lamports to farmer", refund);
+        // Final month — no cancel allowed
+        if days_remaining <= one_month && now < policy.expires_at {
+            return Err(ThaharError::CannotCancelFinalMonth.into());
+        }
+
+        let refund = if now >= policy.expires_at {
+            // Policy expired naturally — 50% back
+            msg!("Policy expired — refunding 50% premium");
+            policy.premium_paid / 2
+        } else if days_active <= 30 {
+            // Lock period — 0% back
+            msg!("Lock period — no refund");
+            0
+        } else {
+            // Mid policy — 70% back
+            msg!("Mid-policy cancel — refunding 70% premium");
+            policy.premium_paid * 70 / 100
+        };
+
+        if refund > 0 {
+            **treasury.to_account_info().try_borrow_mut_lamports()? -= refund;
+            **farmer.to_account_info().try_borrow_mut_lamports()? += refund;
+            msg!("Refunded {} lamports to farmer", refund);
+        }
     }
 
     // Return rent from policy account to farmer
