@@ -21,7 +21,7 @@ export default function MyPolicies({ notify }) {
     if (!wallet.connected) return;
     setFetching(true);
     fetchPolicy(wallet)
-      .then(p => setPolicy(p))
+      .then(p => { console.log("POLICY:", JSON.stringify(p, null, 2)); setPolicy(p); })
       .catch(() => setPolicy(null))
       .finally(() => setFetching(false));
   }, [wallet.connected]);
@@ -34,7 +34,7 @@ export default function MyPolicies({ notify }) {
       notify(`Payout triggered! TX: ${sig.slice(0, 8)}...`);
       setPolicy(p => ({ ...p, status: 1 }));
     } catch (e) {
-      notify(e.message || 'Trigger failed', 'error');
+      if (e.message?.includes("already been processed")) { notify("Payout triggered!"); } else { notify(e.message || "Trigger failed", "error"); }
     }
     setLoading(false);
   };
@@ -47,7 +47,7 @@ export default function MyPolicies({ notify }) {
       notify(`Policy closed! Rent returned. TX: ${sig.slice(0, 8)}...`);
       setPolicy(null);
     } catch (e) {
-      notify(e.message || 'Close failed', 'error');
+      if (e.message?.includes("already been processed")) { notify("Policy closed!"); } else { notify(e.message || "Close failed", "error"); }
     }
     setLoading(false);
   };
@@ -137,12 +137,20 @@ export default function MyPolicies({ notify }) {
           )}
 
           {statusIndex(policy.status) === 1 && (
-            <div className="payout-notice">
-              ✅ Payout has been sent to your wallet.
-            </div>
-          )}
+  <div className="payout-notice">
+    ✅ Payout has been sent to your wallet.
+    <button
+      className="cryo-btn full-width"
+      onClick={handleClose}
+      disabled={loading}
+      style={{ background: '#ff444422', color: '#ff4444', border: '1px solid #ff4444', marginTop: '1rem' }}
+    >
+      {loading ? 'Processing...' : '🗑️ Close Policy & Reclaim Rent'}
+    </button>
+  </div>
+)}
 
-          
+          <a
             href={`https://explorer.solana.com/address/${wallet.publicKey?.toBase58()}?cluster=devnet`}
             target="_blank"
             rel="noreferrer"

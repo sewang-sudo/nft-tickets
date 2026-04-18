@@ -5,7 +5,6 @@ use crate::state::InsurancePolicy;
 pub struct ClosePolicy<'info> {
     #[account(
         mut,
-        close = farmer,
         seeds = [b"policy", farmer.key().as_ref()],
         bump = policy.bump,
         has_one = farmer,
@@ -16,7 +15,18 @@ pub struct ClosePolicy<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<ClosePolicy>) -> Result<()> {
-    msg!("Policy closed for farmer: {:?}", ctx.accounts.farmer.key());
+pub fn handle_close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
+    let policy = &ctx.accounts.policy;
+    let farmer = &ctx.accounts.farmer;
+
+    // Transfer all lamports from policy account to farmer
+    let policy_lamports = policy.to_account_info().lamports();
+    **policy.to_account_info().try_borrow_mut_lamports()? -= policy_lamports;
+    **farmer.to_account_info().try_borrow_mut_lamports()? += policy_lamports;
+
+    // Zero out the account data so it's reclaimed
+    policy.to_account_info().data.borrow_mut().fill(0);
+
+    msg!("Policy closed for farmer: {:?}", farmer.key());
     Ok(())
 }

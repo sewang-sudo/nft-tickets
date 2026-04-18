@@ -26,7 +26,7 @@ pub struct PayPremium<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<PayPremium>, amount: u64) -> Result<()> {
+pub fn handle_pay_premium(ctx: Context<PayPremium>, amount: u64) -> Result<()> {
     require!(amount > 0, ThaharError::PremiumTooLow);
     require!(
         ctx.accounts.policy.status == PolicyStatus::Active,
