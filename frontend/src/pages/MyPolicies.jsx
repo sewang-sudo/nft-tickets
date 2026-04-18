@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { fetchPolicy, triggerPayout, closePolicy } from '../utils/thahar';
+import { fetchPolicy, triggerPayout, closePolicy, expirePolicy } from '../utils/thahar';
 
 const STATUS_LABELS = { 0: 'Active', 1: 'Paid Out', 2: 'Expired' };
 const STATUS_COLORS = { 0: '#00ff88', 1: '#7b61ff', 2: '#888' };
@@ -48,6 +48,19 @@ export default function MyPolicies({ notify, toNPR }) {
       setPolicy(null);
     } catch (e) {
       if (e.message?.includes("already been processed")) { notify("Policy closed!"); } else { notify(e.message || "Close failed", "error"); }
+    }
+    setLoading(false);
+  };
+
+  const handleExpire = async () => {
+    if (!wallet.connected) return;
+    setLoading(true);
+    try {
+      const sig = await expirePolicy(wallet, policy.farmer);
+      notify(`Policy expired! 50% premium returned. TX: ${sig.slice(0, 8)}...`);
+      setPolicy(null);
+    } catch (e) {
+      if (e.message?.includes("already been processed")) { notify("Policy expired!"); setPolicy(null); } else { notify(e.message || "Expire failed", "error"); }
     }
     setLoading(false);
   };
@@ -211,6 +224,22 @@ export default function MyPolicies({ notify, toNPR }) {
   </div>
 )}
 
+          {statusIndex(policy.status) === 0 && (() => {
+            const now = Math.floor(Date.now() / 1000);
+            const expiresAt = policy.expiresAt?.toNumber?.();
+            const isExpired = now >= expiresAt;
+            if (!isExpired) return null;
+            return (
+              <button
+                className="cryo-btn full-width"
+                onClick={handleExpire}
+                disabled={loading}
+                style={{ background: '#7b61ff22', color: '#7b61ff', border: '1px solid #7b61ff', marginTop: '0.5rem' }}
+              >
+                {loading ? 'Processing...' : 'Claim 50% Back - Policy Expired'}
+              </button>
+            );
+          })()}
           <a
             href={`https://explorer.solana.com/address/${wallet.publicKey?.toBase58()}?cluster=devnet`}
             target="_blank"
