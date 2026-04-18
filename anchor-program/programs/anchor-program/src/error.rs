@@ -21,4 +21,6 @@ pub enum ThaharError {
     ArithmeticOverflow,
     #[msg("Duration must be between 30 and 365 days")]
     InvalidDuration,
+    #[msg("Cannot cancel policy in the final month")]
+    CannotCancelFinalMonth,
 }
