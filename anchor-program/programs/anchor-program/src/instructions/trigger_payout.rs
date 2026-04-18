@@ -29,7 +29,7 @@ pub struct TriggerPayout<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<TriggerPayout>) -> Result<()> {
+pub fn handle_trigger_payout(ctx: Context<TriggerPayout>) -> Result<()> {
     // --- read-only checks first, before any mutable borrows ---
     let payout = {
         let policy = &ctx.accounts.policy;

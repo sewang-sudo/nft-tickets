@@ -49,11 +49,11 @@ export default function Oracle() {
               <div className="oracle-readings">
                 <div className="oracle-reading">
                   <span className="reading-label">Rainfall</span>
-                  <span className="reading-value rain">{data.rainfallMm} mm</span>
+                  <span className="reading-value rain">{data.rainfallMm?.toString()} mm</span>
                 </div>
                 <div className="oracle-reading">
                   <span className="reading-label">Flood Level</span>
-                  <span className="reading-value flood">{data.floodLevel} cm</span>
+                  <span className="reading-value flood">{data.floodLevel?.toString()} cm</span>
                 </div>
                 <div className="oracle-reading">
                   <span className="reading-label">Last Update</span>

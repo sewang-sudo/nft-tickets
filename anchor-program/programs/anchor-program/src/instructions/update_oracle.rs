@@ -20,7 +20,7 @@ pub struct UpdateOracle<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(
+pub fn handle_update_oracle(
     ctx: Context<UpdateOracle>,
     region_id: String,
     rainfall_mm: i64,

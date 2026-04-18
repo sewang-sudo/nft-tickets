@@ -13,7 +13,7 @@ pub mod thahar {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        instructions::initialize::handler(ctx)
+        instructions::initialize::handle_initialize(ctx)
     }
 
     pub fn register_policy(
@@ -23,13 +23,13 @@ pub mod thahar {
         trigger_threshold: i64,
         region_id: String,
     ) -> Result<()> {
-        instructions::register_policy::handler(
+        instructions::register_policy::handle_register_policy(
             ctx, policy_type, coverage_amount, trigger_threshold, region_id,
         )
     }
 
     pub fn pay_premium(ctx: Context<PayPremium>, amount: u64) -> Result<()> {
-        instructions::pay_premium::handler(ctx, amount)
+        instructions::pay_premium::handle_pay_premium(ctx, amount)
     }
 
     pub fn update_oracle(
@@ -38,14 +38,14 @@ pub mod thahar {
         rainfall_mm: i64,
         flood_level_cm: i64,
     ) -> Result<()> {
-        instructions::update_oracle::handler(ctx, region_id, rainfall_mm, flood_level_cm)
+        instructions::update_oracle::handle_update_oracle(ctx, region_id, rainfall_mm, flood_level_cm)
     }
 
     pub fn trigger_payout(ctx: Context<TriggerPayout>) -> Result<()> {
-        instructions::trigger_payout::handler(ctx)
+        instructions::trigger_payout::handle_trigger_payout(ctx)
     }
     pub fn close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
-        instructions::close_policy::handler(ctx)
+        instructions::close_policy::handle_close_policy(ctx)
     }
 }
 
