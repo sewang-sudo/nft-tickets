@@ -22,9 +22,10 @@ pub mod thahar {
         coverage_amount: u64,
         trigger_threshold: i64,
         region_id: String,
+        duration_days: u16,
     ) -> Result<()> {
         instructions::register_policy::handle_register_policy(
-            ctx, policy_type, coverage_amount, trigger_threshold, region_id,
+            ctx, policy_type, coverage_amount, trigger_threshold, region_id, duration_days,
         )
     }
 

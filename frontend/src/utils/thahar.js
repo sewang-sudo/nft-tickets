@@ -59,16 +59,17 @@ export async function initializeTreasury(wallet) {
     .rpc();
 }
 
-export async function registerPolicy(wallet, { coverageAmount, triggerThreshold, regionId, policyType }) {
+export async function registerPolicy(wallet, { coverageAmount, triggerThreshold, regionId, policyType, durationDays }) {
   const program = getProgram(wallet);
   const [policy] = policyPDA(wallet.publicKey);
-  // Rust arg order: policy_type, coverage_amount, trigger_threshold, region_id
+  // Rust arg order: policy_type, coverage_amount, trigger_threshold, region_id, duration_days
   return await program.methods
     .registerPolicy(
       POLICY_TYPE_ENUM[policyType] ?? { crop: {} },
       new BN(coverageAmount),
       new BN(triggerThreshold),
-      regionId
+      regionId,
+      durationDays
     )
     .accounts({
       policy,

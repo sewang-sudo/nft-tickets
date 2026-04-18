@@ -13,6 +13,7 @@ export default function Home({ notify }) {
     triggerThreshold: '',
     regionId: REGIONS[0],
     policyType: 0,
+    durationDays: 180,
   });
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState('register'); // 'register' | 'premium' | 'done'
@@ -31,6 +32,7 @@ export default function Home({ notify }) {
         triggerThreshold: parseInt(form.triggerThreshold),
         regionId: form.regionId,
         policyType: parseInt(form.policyType),
+        durationDays: parseInt(form.durationDays),
       });
       notify(`Policy registered! TX: ${sig.slice(0, 8)}...`);
       setStep('premium');
@@ -194,6 +196,20 @@ export default function Home({ notify }) {
                       {POLICY_TYPES.map((t, i) => (
                         <option key={i} value={i}>{t}</option>
                       ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Duration (days)</label>
+                    <select
+                      className="cryo-input"
+                      name="durationDays"
+                      value={form.durationDays}
+                      onChange={handleChange}
+                    >
+                      <option value={30}>30 days (1 month)</option>
+                      <option value={90}>90 days (3 months)</option>
+                      <option value={180}>180 days (6 months)</option>
+                      <option value={365}>365 days (1 year)</option>
                     </select>
                   </div>
                 </div>
