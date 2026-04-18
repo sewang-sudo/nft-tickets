@@ -34,25 +34,19 @@ pub fn handle_close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
     let one_month = 30i64 * 86400;
 
     if policy.status == PolicyStatus::Active && policy.premium_paid > 0 {
-        // Final month — no cancel allowed
         if days_remaining <= one_month && now < policy.expires_at {
             return Err(ThaharError::CannotCancelFinalMonth.into());
         }
-
         let refund = if now >= policy.expires_at {
-            // Policy expired naturally — 50% back
             msg!("Policy expired — refunding 50% premium");
             policy.premium_paid / 2
         } else if days_active <= 30 {
-            // Lock period — 0% back
             msg!("Lock period — no refund");
             0
         } else {
-            // Mid policy — 70% back
             msg!("Mid-policy cancel — refunding 70% premium");
             policy.premium_paid * 70 / 100
         };
-
         if refund > 0 {
             **treasury.to_account_info().try_borrow_mut_lamports()? -= refund;
             **farmer.to_account_info().try_borrow_mut_lamports()? += refund;
@@ -60,12 +54,9 @@ pub fn handle_close_policy(ctx: Context<ClosePolicy>) -> Result<()> {
         }
     }
 
-    // Return rent from policy account to farmer
     let policy_lamports = policy.to_account_info().lamports();
     **policy.to_account_info().try_borrow_mut_lamports()? -= policy_lamports;
     **farmer.to_account_info().try_borrow_mut_lamports()? += policy_lamports;
-
-    // Zero out account data
     policy.to_account_info().data.borrow_mut().fill(0);
     msg!("Policy closed for farmer: {:?}", farmer.key());
     Ok(())
