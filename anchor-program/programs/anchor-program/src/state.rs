@@ -1,16 +1,19 @@
 use anchor_lang::prelude::*;
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
 pub enum PolicyType {
     Crop,
     Flood,
     Both,
 }
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
 pub enum PolicyStatus {
     Active,
     PaidOut,
     Expired,
 }
+
 #[account]
 pub struct InsurancePolicy {
     pub farmer:            Pubkey,
@@ -25,6 +28,7 @@ pub struct InsurancePolicy {
     pub duration_days:     u16,
     pub bump:              u8,
 }
+
 impl InsurancePolicy {
     pub const LEN: usize = 8
         + 32
@@ -39,29 +43,31 @@ impl InsurancePolicy {
         + 2
         + 1;
 }
+
 #[account]
 pub struct OracleData {
-    pub authority:      Pubkey,
     pub region_id:      String,
     pub rainfall_mm:    i64,
     pub flood_level_cm: i64,
     pub last_updated:   i64,
     pub bump:           u8,
 }
+
 impl OracleData {
     pub const LEN: usize = 8
-        + 32
         + (4 + 32)
         + 8
         + 8
         + 8
         + 1;
 }
+
 #[account]
 pub struct ProgramTreasury {
     pub authority: Pubkey,
     pub bump:      u8,
 }
+
 impl ProgramTreasury {
     pub const LEN: usize = 8 + 32 + 1;
 }
