@@ -55,11 +55,12 @@ pub struct OracleData {
 
 impl OracleData {
     pub const LEN: usize = 8
-        + (4 + 32)
-        + 8
-        + 8
-        + 8
-        + 1;
+        + 32          // reserved padding (was authority)
+        + (4 + 32)    // region_id
+        + 8           // rainfall_mm
+        + 8           // flood_level_cm
+        + 8           // last_updated
+        + 1;          // bump
 }
 
 #[account]

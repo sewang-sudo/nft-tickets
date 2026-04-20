@@ -5,6 +5,7 @@ pub mod update_oracle;
 pub mod trigger_payout;
 pub mod close_policy;
 pub mod expire_policy;
+pub mod close_oracle;
 
 pub use initialize::*;
 pub use register_policy::*;
@@ -13,3 +14,4 @@ pub use update_oracle::*;
 pub use trigger_payout::*;
 pub use close_policy::*;
 pub use expire_policy::*;
+pub use close_oracle::*;

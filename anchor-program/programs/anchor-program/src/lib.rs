@@ -51,6 +51,12 @@ pub mod thahar {
     pub fn expire_policy(ctx: Context<ExpirePolicy>) -> Result<()> {
         instructions::expire_policy::handle_expire_policy(ctx)
     }
+    pub fn close_oracle(
+    ctx: Context<CloseOracle>,
+    region_id: String,
+) -> Result<()> {
+    instructions::close_oracle::handle_close_oracle(ctx, region_id)
+}
 }
 
 #[cfg(test)]

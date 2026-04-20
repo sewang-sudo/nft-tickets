@@ -39,7 +39,7 @@ async function main() {
   const provider = new anchor.AnchorProvider(connection, wallet, {});
   anchor.setProvider(provider);
 
-  const idl = JSON.parse(readFileSync('../anchor-program/target/idl/anchor_program.json', 'utf8'));
+  const idl = JSON.parse(readFileSync('../anchor-program/target/idl/thahar.json', 'utf8'));
   const program = new anchor.Program(idl, provider);
 
   console.log('🌧️  Thahar Oracle Crank starting...');
