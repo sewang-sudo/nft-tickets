@@ -120,7 +120,6 @@ app.post('/api/ai-advice', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log('Groq response:', JSON.stringify(data));
     const advice = data.choices[0].message.content;
     res.json({ advice });
 
