@@ -96,7 +96,7 @@ app.post('/api/blink/register', async (req, res) => {
 });
 app.post('/api/ai-advice', async (req, res) => {
   try {
-    const { crop, region, season } = req.body;
+    const { message } = req.body;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -109,11 +109,11 @@ app.post('/api/ai-advice', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a crop insurance advisor for Nepali farmers. Give simple, short advice. Max 3 sentences. Recommend a risk level (low/medium/high) and a coverage amount in SOL between 0.1 and 2 SOL.',
+            content: 'You are a crop insurance advisor specifically for Nepali farmers in Nepal. All regions, weather data, and advice must be specific to Nepal only — not India or any other country. Kathmandu, Pokhara, Chitwan, Terai, Butwal are all in Nepal. Give simple short advice in max 3 sentences. Recommend a risk level (low/medium/high) and coverage amount in SOL between 0.1 and 2 SOL.',
           },
           {
             role: 'user',
-            content: `Crop: ${crop}, Region: ${region}, Season: ${season}`,
+            content: message,
           },
         ],
       }),
