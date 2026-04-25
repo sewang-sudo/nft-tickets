@@ -63,16 +63,20 @@ app.post('/api/blink/register', async (req, res) => {
       [Buffer.from('policy'), farmerPubkey.toBuffer()],
       new PublicKey(PROGRAM_ID)
     );
-
     const transaction = await program.methods
-      .registerPolicy(new BN(1000000), new BN(5000000))
-      .accounts({
-        farmer: farmerPubkey,
-        policy: policyPda,
-        systemProgram: PublicKey.default,
-      })
-      .transaction();
-
+  .registerPolicy(
+    { crop : {} },
+    new BN(1000000000),
+    new BN(50),
+    'kathmandu-1',
+    180,
+  )
+  .accounts({
+    farmer: farmerPubkey,
+    policy: policyPda,
+    systemProgram: PublicKey.default,
+  })
+  .transaction();
     transaction.feePayer = farmerPubkey;
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
@@ -96,7 +100,7 @@ app.post('/api/blink/register', async (req, res) => {
 });
 app.post('/api/ai-advice', async (req, res) => {
   try {
-    const { message } = req.body;
+    const { messages } = req.body;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -109,12 +113,14 @@ app.post('/api/ai-advice', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a crop insurance advisor specifically for Nepali farmers in Nepal. All regions, weather data, and advice must be specific to Nepal only — not India or any other country. Kathmandu, Pokhara, Chitwan, Terai, Butwal are all in Nepal. Give simple short advice in max 3 sentences. Recommend a risk level (low/medium/high) and coverage amount in SOL between 0.1 and 2 SOL. .',
+            content: `You are a crop insurance advisor for Nepali farmers in Nepal.
+When a farmer asks about risk or advice, give short advice in max 2 sentences. Never include JSON in plain text responses.
+When a farmer confirms they want to register a policy, respond ONLY with this exact JSON and nothing else, no extra text:
+{"action":"register","coverage":1.5,"message":"Registering your policy now."}
+Adjust coverage between 0.1 and 2.0 SOL based on risk.
+If you include any text before or after the JSON, it will break the system and do not say Rohit sharma policy, its Thahar(Thahar) like : since you are intrested in Thahar.`,
           },
-          {
-            role: 'user',
-            content: message,
-          },
+            ...messages,
         ],
       }),
     });
