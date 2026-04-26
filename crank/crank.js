@@ -54,7 +54,7 @@ async function main() {
       }
     }
     console.log('⏳ Sleeping 1 hour...');
-    await new Promise(r => setTimeout(r, 60 * 60 * 1000));
+    await new Promise(r => setTimeout(r, 12*60 * 60 * 1000));z
   }
 }
 
